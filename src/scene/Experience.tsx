@@ -209,10 +209,10 @@ export function Experience({
       }}
       style={{ background: "transparent", touchAction: "none" }}
     >
-      <ambientLight intensity={0.06} color="#23471c" />
+      <ambientLight intensity={0.22} color="#58388b" />
       <directionalLight position={[-4, 6, 5]} intensity={1.1} color="#58388b" />
-      <directionalLight position={[5, 1, 3]} intensity={0.8} color="#58388b" />
-      <hemisphereLight args={["#d4c5f0", "#594080", 0.1]} />
+      <directionalLight position={[5, 1, 3]} intensity={0.8} color="#462779" />
+      <hemisphereLight args={["#789976", "#594080", 0.15]} />
       <StudioEnvironment />
       <Suspense fallback={null}>
         <World onCollect={onCollect} />

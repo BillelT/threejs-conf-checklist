@@ -60,8 +60,8 @@ a {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 75% 95% at 76% 40%, #9b94e9 0%, transparent 78%),
-    linear-gradient(115deg, #7963bd 0%, #9288db 58%, #8880cb 100%);
+    radial-gradient(ellipse 75% 95% at 76% 40%, #9e97e4 0%, transparent 78%),
+    linear-gradient(115deg, #7e63d1 0%, #9288db 58%, #8980de 100%);
 }
 
 /* main page — scrollable, gradient shows through the whole way. Pointer
