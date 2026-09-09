@@ -45,8 +45,13 @@ button {
   cursor: pointer;
 }
 
-a { color: inherit; }
-.soft-shape { position: relative; }
+a {
+  color: inherit;
+}
+
+.soft-shape {
+  position: relative;
+}
 
 /* full-viewport gradient background inspired by threejs.paris */
 .bg-gradient {
@@ -68,7 +73,10 @@ a { color: inherit; }
   min-height: var(--experience-height, 150vh);
   pointer-events: none;
 }
-.page * { pointer-events: none; }
+
+.page * {
+  pointer-events: none;
+}
 
 /* Hero — sits above the fixed canvas */
 .hero {
@@ -91,8 +99,12 @@ a { color: inherit; }
   white-space: nowrap;
   pointer-events: auto;
   user-select: text;
+  user-select: none;
 }
-.title span { display: block; }
+
+.title span {
+  display: block;
+}
 
 /* Page height follows the bag and the game instead of adding an empty screen. */
 .game {
@@ -109,6 +121,7 @@ a { color: inherit; }
   z-index: 1;
   pointer-events: auto;
 }
+
 .stage canvas {
   display: block;
   width: 100%;
@@ -124,29 +137,42 @@ a { color: inherit; }
   pointer-events: none;
   color: var(--cream);
 }
-.bag-target svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.bag-target text { fill: currentColor; font-family: var(--font-body); font-size: 17px; letter-spacing: 2px; }
+
+.bag-target svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.bag-target text {
+  fill: currentColor;
+  font-family: var(--font-body);
+  font-size: 17px;
+  letter-spacing: 2px;
+}
 
 /* Checklist card — compact, floating top-right, inspired by the
    threejs.paris pricing cards. The soft, elastic shape is drawn by
    <SoftShape> (an SVG path); the aside is just a positioner. */
 .clist {
-  position: fixed;
-  top: clamp(16px, 2.5vw, 28px);
-  right: clamp(16px, 2.5vw, 28px);
-  z-index: 20;
   width: min(280px, 84vw);
   color: var(--ink);
   filter: drop-shadow(0 18px 36px rgba(28, 12, 60, 0.16));
   user-select: text;
+  position: absolute;
+  right: 20%;
 }
+
 .clist__card {
   position: relative;
   min-height: 220px;
 }
+
 .clist__inner {
   padding: 44px 22px 22px;
 }
+
 .clist__pill-wrap {
   position: absolute;
   top: -14px;
@@ -161,6 +187,7 @@ a { color: inherit; }
   justify-content: center;
   filter: drop-shadow(0 6px 12px rgba(28, 12, 60, 0.25));
 }
+
 .clist__pill-label {
   color: var(--cream);
   font-family: var(--font-body);
@@ -171,6 +198,7 @@ a { color: inherit; }
   padding: 6px 18px;
   display: inline-block;
 }
+
 .clist__count {
   text-align: center;
   font-family: var(--font-display);
@@ -179,6 +207,7 @@ a { color: inherit; }
   letter-spacing: -0.01em;
   margin: 0 0 12px;
 }
+
 .clist__items {
   list-style: none;
   padding: 0;
@@ -186,6 +215,7 @@ a { color: inherit; }
   display: grid;
   gap: 6px;
 }
+
 .clist__items li {
   display: flex;
   align-items: baseline;
@@ -198,18 +228,34 @@ a { color: inherit; }
   padding: 2px 0;
   transition: opacity 0.2s ease;
 }
+
 .clist__bullet {
   color: var(--ink);
   font-size: 18px;
   line-height: 1;
 }
-.clist__label { flex: 1; }
-.clist__items li.is-done .clist__label {
-  background: var(--yellow);
-  box-shadow: 3px 0 0 var(--yellow), -3px 0 0 var(--yellow);
-  padding: 0 1px;
+
+.clist__label {
+  flex: 1;
 }
-.clist__items li.is-done .clist__bullet { color: var(--lavender-deep); }
+
+.clist__items li.is-done .clist__label {
+  /* background: var(--yellow); */
+  /* box-shadow: 3px 0 0 var(--yellow), -3px 0 0 var(--yellow); */
+  padding: 0 1px;
+  background-image: linear-gradient(102deg, #ffdb7800 1%, #ffdb78b3 6%, #ffdb78f2 50%, #ffdb78b3 94%, #ffdb7800 99%);
+  box-decoration-break: clone;
+  background-position: -2% 92%;
+  background-repeat: no-repeat;
+  background-size: 104% 70%;
+  border-radius: 4px 7px 3px 6px;
+  /* margin: 0 -4px; */
+  /* padding: 0 4px; */
+}
+
+.clist__items li.is-done .clist__bullet {
+  color: var(--lavender-deep);
+}
 
 /* Toast */
 .toasts {
@@ -222,12 +268,14 @@ a { color: inherit; }
   gap: 10px;
   pointer-events: none;
 }
+
 .toast {
   filter: drop-shadow(0 16px 30px rgba(28, 12, 60, 0.5));
   animation: toast-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   min-height: 44px;
   display: inline-block;
 }
+
 .toast__row {
   padding: 10px 22px;
   font-family: var(--font-body);
@@ -240,20 +288,34 @@ a { color: inherit; }
   color: var(--ink);
   white-space: nowrap;
 }
+
 .toast--win .toast__row {
   color: var(--cream);
   font-size: 24px;
 }
+
 .toast .dot {
   width: 14px;
   height: 14px;
   border-radius: 50%;
   background: var(--ink);
 }
+
 @keyframes toast-pop {
-  0% { transform: translateY(-14px) scale(0.9); opacity: 0; }
-  60% { transform: translateY(4px) scale(1.05); opacity: 1; }
-  100% { transform: translateY(0) scale(1); opacity: 1; }
+  0% {
+    transform: translateY(-14px) scale(0.9);
+    opacity: 0;
+  }
+
+  60% {
+    transform: translateY(4px) scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 /* Completion overlay */
@@ -266,11 +328,13 @@ a { color: inherit; }
   pointer-events: none;
   background: radial-gradient(circle at 50% 40%, rgba(255, 154, 90, 0.4), transparent 60%);
 }
+
 .completion-inner {
   text-align: center;
   transform: translateY(-30px);
   animation: rise 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+
 .completion h1 {
   font-family: var(--font-display);
   font-weight: 800;
@@ -281,6 +345,7 @@ a { color: inherit; }
   letter-spacing: -0.03em;
   color: var(--cream);
 }
+
 .completion p {
   font-family: var(--font-body);
   font-size: clamp(20px, 2vw, 30px);
@@ -290,9 +355,17 @@ a { color: inherit; }
   opacity: 0.85;
   margin: 20px 0 0;
 }
+
 @keyframes rise {
-  0% { transform: translateY(60px); opacity: 0; }
-  100% { transform: translateY(0); opacity: 1; }
+  0% {
+    transform: translateY(60px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* subtle grain */
@@ -319,9 +392,25 @@ a { color: inherit; }
     top: 12px;
     width: min(160px, 44vw);
   }
-  .clist__inner { padding: 34px 12px 14px; }
-  .clist__items li { font-size: 13px; }
-  .clist__count { font-size: 24px; }
-  .clist__pill-wrap { min-width: 120px; }
-  .clist__pill-label { font-size: 13px; padding: 6px 12px; }
+
+  .clist__inner {
+    padding: 34px 12px 14px;
+  }
+
+  .clist__items li {
+    font-size: 13px;
+  }
+
+  .clist__count {
+    font-size: 24px;
+  }
+
+  .clist__pill-wrap {
+    min-width: 120px;
+  }
+
+  .clist__pill-label {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
 }
