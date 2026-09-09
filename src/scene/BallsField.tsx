@@ -123,9 +123,9 @@ function makeBallTexture(seed: number): THREE.CanvasTexture {
 }
 
 export function BallsField({
-  count = 160,
-  bounds = { x: 10, y: 5.5, z: 2 },
-  yOffset = 0,
+  count = 120,
+  bounds = { x: 9, y: 2.2, z: 1.8 },
+  yOffset = -1.6,
   pointer
 }: {
   count?: number

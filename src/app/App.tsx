@@ -62,13 +62,6 @@ export function App() {
           </h1>
           <ChecklistPanel />
         </section>
-        <div className="stage-caption" aria-live="polite">
-          {totalDone === 0
-            ? ''
-            : totalDone === checklist.length
-            ? 'Bag packed. Bon voyage!'
-            : `${totalDone} / ${checklist.length} packed`}
-        </div>
       </main>
       <Toasts />
       <Completion visible={showCompletion} />
