@@ -35,8 +35,11 @@ type ItemState = {
   spin: number
   packed: boolean
   hovered: boolean
-  packedAt: number
+  dragging: boolean
+  dragOffset: THREE.Vector3
 }
+
+const ITEM_Z = 1.8
 
 export function ItemsField({
   packed,
@@ -55,14 +58,13 @@ export function ItemsField({
   const items = useMemo(() => {
     const rnd = seededRand(7)
     const list: Record<ItemKind, ItemState> = {} as any
-    // scatter around the lower half, avoid center where balls hide them (they show through)
     const spots: [number, number, number][] = [
-      [-2.9, 0.9, 0.4],
-      [-1.4, -1.6, 0.3],
-      [1.1, 0.2, 0.5],
-      [2.8, -1.4, 0.3],
-      [3.5, 1.6, 0.5],
-      [-0.4, -2.4, 0.4]
+      [-2.9, 0.9, ITEM_Z],
+      [-1.4, -1.6, ITEM_Z],
+      [1.1, 0.2, ITEM_Z],
+      [2.8, -1.4, ITEM_Z],
+      [3.5, 1.6, ITEM_Z],
+      [-0.4, -2.4, ITEM_Z]
     ]
     checklist.forEach((it, i) => {
       const [x, y, z] = spots[i % spots.length]
@@ -70,7 +72,7 @@ export function ItemsField({
       const home = new THREE.Vector3(
         x + (rnd() - 0.5) * jitter,
         y + (rnd() - 0.5) * jitter,
-        z + (rnd() - 0.5) * jitter
+        z
       )
       list[it.id] = {
         home,
@@ -81,7 +83,8 @@ export function ItemsField({
         spin: rnd() * Math.PI * 2,
         packed: false,
         hovered: false,
-        packedAt: 0
+        dragging: false,
+        dragOffset: new THREE.Vector3()
       }
     })
     return list
@@ -92,51 +95,54 @@ export function ItemsField({
   useFrame((state, delta) => {
     const dt = Math.min(delta, 1 / 30)
     const t = state.clock.elapsedTime
-    const p = pointer.current
 
     checklist.forEach((it) => {
       const s = items[it.id]
       const isPacked = !!packed[it.id]
       s.packed = isPacked
 
-      // choose target: bag if packed, home otherwise
       if (isPacked) {
         s.target.copy(bagPosition)
+      } else if (s.dragging) {
+        s.target.set(
+          pointer.current.x + s.dragOffset.x,
+          pointer.current.y + s.dragOffset.y,
+          ITEM_Z
+        )
       } else {
         s.target.copy(s.home)
       }
 
-      // spring
-      tmp.copy(s.target).sub(s.pos).multiplyScalar(6 * dt)
+      const stiffness = s.dragging ? 22 : 6
+      tmp.copy(s.target).sub(s.pos).multiplyScalar(stiffness * dt)
       s.vel.add(tmp)
 
-      // pointer subtle repulsion — items shift slightly
-      if (!isPacked) {
-        tmp.copy(s.pos).sub(p)
-        const d = tmp.length()
-        const R = 1.5
-        if (d < R && d > 0.001) {
-          const force = (1 - d / R) * 0.25
-          tmp.normalize().multiplyScalar(force)
-          s.vel.add(tmp)
-        }
-      }
-
-      // damping
-      s.vel.multiplyScalar(0.85)
+      s.vel.multiplyScalar(s.dragging ? 0.5 : 0.85)
       s.pos.add(s.vel.clone().multiplyScalar(dt * 60))
 
       const g = refs.current[it.id]
       if (g) {
         g.position.copy(s.pos)
         const idleY = Math.sin(t * 1.2 + s.spin) * 0.06
-        g.position.y += isPacked ? 0 : idleY
-        const targetScale = isPacked ? 0.35 : (s.hovered ? 1.18 : 1)
+        g.position.y += isPacked || s.dragging ? 0 : idleY
+        const targetScale = isPacked
+          ? 0.35
+          : s.dragging
+          ? 1.25
+          : s.hovered
+          ? 1.15
+          : 1
         const cur = g.scale.x
-        const next = cur + (targetScale - cur) * Math.min(1, 10 * dt)
+        const next = cur + (targetScale - cur) * Math.min(1, 12 * dt)
         g.scale.setScalar(next)
-        g.rotation.y = t * 0.6 + s.spin
-        g.rotation.x = Math.sin(t * 0.9 + s.spin) * 0.15
+        if (s.dragging) {
+          // steady the item while dragging, small tilt only
+          g.rotation.y += (0 - g.rotation.y) * Math.min(1, 6 * dt)
+          g.rotation.x += (0 - g.rotation.x) * Math.min(1, 6 * dt)
+        } else {
+          g.rotation.y = t * 0.6 + s.spin
+          g.rotation.x = Math.sin(t * 0.9 + s.spin) * 0.15
+        }
       }
     })
   })
@@ -154,16 +160,47 @@ export function ItemsField({
             onPointerOver={(e) => {
               e.stopPropagation()
               items[it.id].hovered = true
-              if (!packed[it.id]) document.body.style.cursor = 'pointer'
+              if (!packed[it.id]) document.body.style.cursor = 'grab'
             }}
             onPointerOut={() => {
               items[it.id].hovered = false
-              document.body.style.cursor = ''
+              if (!items[it.id].dragging) document.body.style.cursor = ''
             }}
-            onClick={(e) => {
-              e.stopPropagation()
+            onPointerDown={(e) => {
               if (packed[it.id]) return
-              onCollect(it.id, e.nativeEvent.clientX, e.nativeEvent.clientY)
+              e.stopPropagation()
+              const s = items[it.id]
+              s.dragging = true
+              s.dragOffset.set(
+                s.pos.x - pointer.current.x,
+                s.pos.y - pointer.current.y,
+                0
+              )
+              document.body.style.cursor = 'grabbing'
+              ;(e.target as any).setPointerCapture?.(e.pointerId)
+            }}
+            onPointerUp={(e) => {
+              const s = items[it.id]
+              if (!s.dragging) return
+              e.stopPropagation()
+              s.dragging = false
+              document.body.style.cursor = s.hovered ? 'grab' : ''
+              ;(e.target as any).releasePointerCapture?.(e.pointerId)
+              // if dropped near the bag, pack it
+              const dx = s.pos.x - bagPosition.x
+              const dy = s.pos.y - bagPosition.y
+              const d = Math.hypot(dx, dy)
+              const threshold = 1.6
+              if (d < threshold) {
+                onCollect(it.id, e.nativeEvent.clientX, e.nativeEvent.clientY)
+              }
+            }}
+            onPointerCancel={(e) => {
+              const s = items[it.id]
+              if (!s.dragging) return
+              s.dragging = false
+              document.body.style.cursor = ''
+              ;(e.target as any).releasePointerCapture?.(e.pointerId)
             }}
           >
             <Renderer />
