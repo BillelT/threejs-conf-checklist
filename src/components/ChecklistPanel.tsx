@@ -22,7 +22,7 @@ export function ChecklistPanel() {
         strength={0.6}
         spring={0.14}
         damping={0.78}
-        contentParallax={5}
+        contentParallax={0}
         padding={0}
       >
         <div className="clist__inner">
@@ -35,7 +35,7 @@ export function ChecklistPanel() {
             strength={0.7}
             spring={0.18}
             damping={0.74}
-            contentParallax={3}
+            contentParallax={0}
           >
             <span className="clist__pill-label">My checklist</span>
           </SoftShape>

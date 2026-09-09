@@ -1,22 +1,12 @@
+import { RoundedBox } from '@react-three/drei'
+import { ToyMaterial } from './ToyMaterial'
+
 export function Pen() {
-  return (
-    <group rotation={[0, 0, -Math.PI / 5]}>
-      <mesh>
-        <cylinderGeometry args={[0.05, 0.05, 0.9, 20]} />
-        <meshStandardMaterial color="#16121b" roughness={0.35} />
-      </mesh>
-      <mesh position={[0, 0.5, 0]}>
-        <cylinderGeometry args={[0.055, 0.055, 0.15, 20]} />
-        <meshStandardMaterial color="#ffd94a" roughness={0.3} />
-      </mesh>
-      <mesh position={[0, -0.48, 0]}>
-        <coneGeometry args={[0.05, 0.12, 20]} />
-        <meshStandardMaterial color="#16121b" roughness={0.25} metalness={0.4} />
-      </mesh>
-      <mesh position={[0.06, 0.4, 0]}>
-        <boxGeometry args={[0.015, 0.16, 0.03]} />
-        <meshStandardMaterial color="#ffd94a" />
-      </mesh>
-    </group>
-  )
+  return <group rotation={[0, 0, -0.32]}>
+    <mesh><capsuleGeometry args={[0.105, 0.92, 8, 24]} /><ToyMaterial color="#1672ef" /></mesh>
+    <mesh position={[0, 0.62, 0]}><capsuleGeometry args={[0.052, 0.13, 6, 16]} /><ToyMaterial color="#ff43b2" /></mesh>
+    <RoundedBox position={[0.115, 0.35, 0.02]} args={[0.055, 0.38, 0.06]} radius={0.025}><ToyMaterial color="#ff43b2" /></RoundedBox>
+    <mesh position={[0, -0.62, 0]} rotation={[0, 0, Math.PI]}><coneGeometry args={[0.085, 0.22, 24]} /><ToyMaterial color="#f4eee9" roughness={0.28} /></mesh>
+    <mesh position={[0, -0.745, 0]}><capsuleGeometry args={[0.019, 0.045, 4, 12]} /><ToyMaterial color="#9b9ba7" metalness={0.8} roughness={0.2} /></mesh>
+  </group>
 }

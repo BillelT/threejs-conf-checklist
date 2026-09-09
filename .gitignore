@@ -6,3 +6,6 @@ dist
 .env
 .env.local
 tsconfig.tsbuildinfo
+artifacts/
+test-results/
+playwright-report/

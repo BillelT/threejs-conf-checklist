@@ -7,6 +7,8 @@ import { useChecklistStore } from '../hooks/useChecklistStore'
 import { checklist, type ItemKind } from '../data/checklist'
 import { popConfetti, celebrate } from '../lib/confetti'
 import { installPointerManager } from '../lib/pointer'
+import { TitleDeformation } from '../components/TitleDeformation'
+import { BagTarget } from '../components/BagTarget'
 
 export function App() {
   const packed = useChecklistStore((s) => s.packed)
@@ -30,14 +32,14 @@ export function App() {
       const available =
         hero.clientWidth - parseFloat(heroStyle.paddingLeft) - parseFloat(heroStyle.paddingRight)
       if (available <= 0) return
-      title.querySelectorAll<HTMLSpanElement>('span').forEach((line) => {
-        line.style.fontSize = ''
-        const currentSize = parseFloat(getComputedStyle(line).fontSize)
-        const measured = line.getBoundingClientRect().width
-        if (measured > 0) {
-          line.style.fontSize = `${(currentSize * available) / measured}px`
-        }
+      const currentSize = parseFloat(getComputedStyle(title).fontSize)
+      const widths = Array.from(title.querySelectorAll<HTMLSpanElement>('span'), (line) => {
+        const range = document.createRange()
+        range.selectNodeContents(line)
+        return range.getBoundingClientRect().width
       })
+      const longest = Math.max(...widths)
+      if (longest > 0) title.style.fontSize = `${currentSize * available / longest}px`
     }
 
     fit()
@@ -48,7 +50,7 @@ export function App() {
   }, [])
 
   useEffect(() => {
-    installPointerManager()
+    return installPointerManager()
   }, [])
 
   const handleCollect = useCallback(
@@ -83,10 +85,11 @@ export function App() {
   return (
     <>
       <div className="bg-gradient" aria-hidden />
-      <div className="stage" aria-hidden>
+      <div className="stage" role="region" aria-label="Drag the six objects into the purple backpack">
         <Experience onCollect={handleCollect} />
       </div>
       <div className="grain" aria-hidden />
+      <BagTarget />
       <ChecklistPanel />
       <main className="page">
         <section className="hero" ref={heroRef}>
@@ -95,6 +98,7 @@ export function App() {
             <span>Conf</span>
             <span>Checklist</span>
           </h1>
+          <TitleDeformation titleRef={titleRef} />
         </section>
         <section className="game" aria-label="3D packing area" />
       </main>

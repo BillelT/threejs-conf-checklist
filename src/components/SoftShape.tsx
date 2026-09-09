@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, type CSSProperties, type ReactNode } from 'react'
 import { getPointer } from '../lib/pointer'
+import { dampFactor, reducedMotion, springStep } from '../lib/motion'
 
 // Reusable elastic-perimeter shape. Renders an SVG background whose contour
 // is deformed locally by the shared pointer manager, with spring-return
@@ -205,7 +206,13 @@ export function SoftShape({
     const ro = new ResizeObserver(resize)
     ro.observe(el)
 
-    const step = () => {
+    let lastTime = performance.now()
+    let contentX = 0
+    let contentY = 0
+    const step = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.05)
+      lastTime = now
+      const quiet = reducedMotion()
       const rect = el.getBoundingClientRect()
       const w = rect.width
       const h = rect.height
@@ -222,7 +229,7 @@ export function SoftShape({
       const mx = p.screenX - rect.left
       const my = p.screenY - rect.top
       const active =
-        p.active &&
+        p.active && !quiet &&
         p.screenX > rect.left - influenceRadius &&
         p.screenX < rect.right + influenceRadius &&
         p.screenY > rect.top - influenceRadius &&
@@ -231,23 +238,27 @@ export function SoftShape({
       // Per-point integration: local pointer force + spring + damping.
       for (let i = 0; i < pts.length; i++) {
         const pt = pts[i]
+        let targetX = pt.restX
+        let targetY = pt.restY
         if (active) {
-          const dx = mx - pt.x
-          const dy = my - pt.y
+          const dx = mx - pt.restX
+          const dy = my - pt.restY
           const dist = Math.hypot(dx, dy)
           if (dist < influenceRadius && dist > 0.001) {
             const falloff = 1 - dist / influenceRadius
             const sign = push ? -1 : 1
-            pt.vx += sign * (dx / dist) * falloff * strength * influenceRadius * 0.06
-            pt.vy += sign * (dy / dist) * falloff * strength * influenceRadius * 0.06
+            const displacement = Math.min(9, strength * 12) * falloff * falloff
+            targetX += sign * (dx / dist) * displacement
+            targetY += sign * (dy / dist) * displacement
           }
         }
-        pt.vx += (pt.restX - pt.x) * spring
-        pt.vy += (pt.restY - pt.y) * spring
-        pt.vx *= damping
-        pt.vy *= damping
-        pt.x += pt.vx
-        pt.y += pt.vy
+        const frequency = 9 + spring * 15 + (1 - damping) * 4
+        const x = springStep(pt.x, pt.vx, targetX, frequency, dt)
+        const y = springStep(pt.y, pt.vy, targetY, frequency, dt)
+        pt.x = x.position
+        pt.y = y.position
+        pt.vx = x.velocity
+        pt.vy = y.velocity
       }
 
       if (pathRef.current) {
@@ -264,7 +275,9 @@ export function SoftShape({
         const clamp = Math.max(-1, Math.min(1, Math.hypot(ndx, ndy)))
         const tx = active ? Math.max(-1, Math.min(1, ndx)) * contentParallax * clamp : 0
         const ty = active ? Math.max(-1, Math.min(1, ndy)) * contentParallax * clamp : 0
-        contentRef.current.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0)`
+        contentX += (tx - contentX) * dampFactor(9, dt)
+        contentY += (ty - contentY) * dampFactor(9, dt)
+        contentRef.current.style.transform = `translate3d(${contentX.toFixed(2)}px, ${contentY.toFixed(2)}px, 0)`
       }
 
       rafId = requestAnimationFrame(step)
@@ -280,8 +293,8 @@ export function SoftShape({
   return (
     <div
       ref={wrapRef}
-      className={className}
-      style={{ position: 'relative', ...style }}
+      className={`soft-shape ${className ?? ''}`}
+      style={style}
     >
       <svg
         aria-hidden

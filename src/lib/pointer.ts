@@ -25,7 +25,7 @@ const state: PointerState = {
 let lastX = -9999
 let lastY = -9999
 let lastT = 0
-let installed = false
+let subscribers = 0
 
 function onMove(e: PointerEvent) {
   const now = performance.now()
@@ -55,11 +55,20 @@ function onLeave() {
 }
 
 export function installPointerManager() {
-  if (installed || typeof window === 'undefined') return
-  installed = true
-  window.addEventListener('pointermove', onMove, { passive: true })
-  window.addEventListener('pointerleave', onLeave)
-  window.addEventListener('blur', onLeave)
+  if (subscribers++ === 0) {
+    window.addEventListener('pointermove', onMove, { passive: true })
+    window.addEventListener('pointerdown', onMove, { passive: true })
+    document.documentElement.addEventListener('pointerleave', onLeave)
+    window.addEventListener('blur', onLeave)
+  }
+  return () => {
+    if (--subscribers !== 0) return
+    window.removeEventListener('pointermove', onMove)
+    window.removeEventListener('pointerdown', onMove)
+    document.documentElement.removeEventListener('pointerleave', onLeave)
+    window.removeEventListener('blur', onLeave)
+    onLeave()
+  }
 }
 
 export function getPointer(): PointerState {
