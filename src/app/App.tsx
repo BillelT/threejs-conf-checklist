@@ -49,6 +49,9 @@ export function App() {
   return (
     <>
       <div className="bg-gradient" aria-hidden />
+      <div className="stage" aria-label="3D packing scene">
+        <Experience onCollect={handleCollect} />
+      </div>
       <div className="grain" aria-hidden />
       <main className="page">
         <section className="top">
@@ -59,19 +62,13 @@ export function App() {
           </h1>
           <ChecklistPanel />
         </section>
-
-        <section className="stage" aria-label="3D packing scene">
-          <Experience onCollect={handleCollect} />
-          <div className="stage-overlay">
-            <span className="label-bottom">
-              {totalDone === 0
-                ? ''
-                : totalDone === checklist.length
-                ? 'Bag packed. Bon voyage!'
-                : `${totalDone} / ${checklist.length} packed`}
-            </span>
-          </div>
-        </section>
+        <div className="stage-caption" aria-live="polite">
+          {totalDone === 0
+            ? ''
+            : totalDone === checklist.length
+            ? 'Bag packed. Bon voyage!'
+            : `${totalDone} / ${checklist.length} packed`}
+        </div>
       </main>
       <Toasts />
       <Completion visible={showCompletion} />

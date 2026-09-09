@@ -22,9 +22,9 @@ function seededRand(seed: number) {
 }
 
 export function BallsField({
-  count = 44,
-  bounds = { x: 8, y: 3.2, z: 1.2 },
-  yOffset = -1.3,
+  count = 58,
+  bounds = { x: 9, y: 3.2, z: 1.4 },
+  yOffset = 0,
   pointer
 }: {
   count?: number

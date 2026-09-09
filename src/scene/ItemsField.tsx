@@ -57,12 +57,12 @@ export function ItemsField({
     const list: Record<ItemKind, ItemState> = {} as any
     // scatter around the lower half, avoid center where balls hide them (they show through)
     const spots: [number, number, number][] = [
-      [-3.6, -1.3, 0.2],
-      [-1.8, -2.4, 0.4],
-      [0.4, -1.6, 0.1],
-      [2.2, -2.6, 0.3],
-      [3.6, -1.1, 0.2],
-      [1.2, -3.2, 0.4]
+      [-2.9, 0.9, 0.4],
+      [-1.4, -1.6, 0.3],
+      [1.1, 0.2, 0.5],
+      [2.8, -1.4, 0.3],
+      [3.5, 1.6, 0.5],
+      [-0.4, -2.4, 0.4]
     ]
     checklist.forEach((it, i) => {
       const [x, y, z] = spots[i % spots.length]
