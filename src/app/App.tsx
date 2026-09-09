@@ -6,6 +6,7 @@ import { Completion } from '../components/Completion'
 import { useChecklistStore } from '../hooks/useChecklistStore'
 import { checklist, type ItemKind } from '../data/checklist'
 import { popConfetti, celebrate } from '../lib/confetti'
+import { installPointerManager } from '../lib/pointer'
 
 export function App() {
   const packed = useChecklistStore((s) => s.packed)
@@ -16,6 +17,10 @@ export function App() {
   )
   const [showCompletion, setShowCompletion] = useState(false)
   const celebratedRef = useRef(false)
+
+  useEffect(() => {
+    installPointerManager()
+  }, [])
 
   const handleCollect = useCallback(
     (id: ItemKind, x: number, y: number) => {
