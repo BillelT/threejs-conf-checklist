@@ -9,12 +9,16 @@ type Ball = {
   scale: number
   seed: number
   variant: number
-  tiltX: number
-  tiltY: number
 }
 
 const PURPLES = ['#7d63ff', '#8a6fff', '#a087ff', '#b8a8ff', '#c9baff', '#6f56e6', '#9b82ff']
 const YELLOWS = ['#f5e6a8', '#ecd97a', '#f7eeb8', '#e8dca3', '#fff2b8', '#ead46a']
+
+// The mesh axis whose direction we align with "where the face should look".
+// Sphere UV (0.5, 0.5) — where we paint the face — lies at the +X side of
+// three.js SphereGeometry, so we align local +X with the camera direction.
+const FACE_AXIS = new THREE.Vector3(1, 0, 0)
+const CAMERA_Z = 8
 
 function seededRand(seed: number) {
   let s = seed
@@ -32,7 +36,7 @@ function makeBallTexture(seed: number): THREE.CanvasTexture {
   c.height = size
   const ctx = c.getContext('2d')!
 
-  const yellowBase = rnd() < 0.25
+  const yellowBase = rnd() < 0.22
   const base = yellowBase
     ? YELLOWS[Math.floor(rnd() * YELLOWS.length)]
     : PURPLES[Math.floor(rnd() * PURPLES.length)]
@@ -43,15 +47,19 @@ function makeBallTexture(seed: number): THREE.CanvasTexture {
   ctx.fillStyle = base
   ctx.fillRect(0, 0, size, size)
 
-  // fluffy accent patch — cluster of blurred blobs on one side of the ball
-  const patchCX = size * (0.15 + rnd() * 0.7)
-  const patchCY = size * (0.1 + rnd() * 0.55)
+  // Accent patch — kept off the face side so it reads as a "second color"
+  // on the ball's flank when the ball tilts.
+  const onLeftFlank = rnd() < 0.5
+  const patchCX = onLeftFlank
+    ? size * (0.05 + rnd() * 0.2) // near u=0.05..0.25 (behind-left)
+    : size * (0.75 + rnd() * 0.2) // near u=0.75..0.95 (behind-right)
+  const patchCY = size * (0.1 + rnd() * 0.7)
   ctx.fillStyle = accent
-  ctx.filter = 'blur(10px)'
+  ctx.filter = 'blur(11px)'
   const blobs = 6 + Math.floor(rnd() * 4)
   for (let i = 0; i < blobs; i++) {
     const bx = patchCX + (rnd() - 0.5) * size * 0.42
-    const by = patchCY + (rnd() - 0.5) * size * 0.32
+    const by = patchCY + (rnd() - 0.5) * size * 0.36
     const br = size * (0.08 + rnd() * 0.14)
     ctx.beginPath()
     ctx.arc(bx, by, br, 0, Math.PI * 2)
@@ -59,18 +67,19 @@ function makeBallTexture(seed: number): THREE.CanvasTexture {
   }
   ctx.filter = 'none'
 
-  // subtle noise / grain
+  // Subtle grain
   const grain = ctx.getImageData(0, 0, size, size)
   const data = grain.data
   for (let i = 0; i < data.length; i += 4) {
-    const n = (rnd() - 0.5) * 14
+    const n = (rnd() - 0.5) * 12
     data[i] = Math.max(0, Math.min(255, data[i] + n))
     data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + n))
     data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + n))
   }
   ctx.putImageData(grain, 0, 0)
 
-  // face — painted around UV(0.5, 0.5) which faces +Z (toward camera)
+  // Face — painted at UV(0.5, 0.5) which maps to the sphere's +X side.
+  // We rotate the mesh each frame so +X points at (roughly) the camera.
   const fx = size * 0.5
   const fy = size * 0.5
   const style = rnd()
@@ -99,7 +108,6 @@ function makeBallTexture(seed: number): THREE.CanvasTexture {
     ctx.fill()
   }
 
-  // small neutral mouth — short line, sometimes a tiny curve
   ctx.strokeStyle = '#0a0710'
   ctx.lineCap = 'round'
   ctx.lineWidth = size * 0.014
@@ -146,7 +154,7 @@ export function BallsField({
         (t) =>
           new THREE.MeshStandardMaterial({
             map: t,
-            roughness: 0.55,
+            roughness: 0.6,
             metalness: 0.02
           })
       ),
@@ -157,14 +165,13 @@ export function BallsField({
   const balls = useMemo<Ball[]>(() => {
     const rnd = seededRand(42)
     const list: Ball[] = []
-    // dense grid with jitter — makes sure the scene is covered
     const cols = Math.ceil(Math.sqrt(count * (bounds.x / bounds.y)))
     const rows = Math.ceil(count / cols)
     let idx = 0
     for (let r = 0; r < rows && idx < count; r++) {
       for (let cc = 0; cc < cols && idx < count; cc++) {
-        const gx = (cc / (cols - 1)) * 2 - 1
-        const gy = (r / (rows - 1)) * 2 - 1
+        const gx = (cc / Math.max(1, cols - 1)) * 2 - 1
+        const gy = (r / Math.max(1, rows - 1)) * 2 - 1
         const x = gx * bounds.x + (rnd() - 0.5) * (bounds.x / cols) * 1.6
         const y = yOffset + gy * bounds.y + (rnd() - 0.5) * (bounds.y / rows) * 1.6
         const z = (rnd() * 2 - 1) * bounds.z
@@ -174,9 +181,7 @@ export function BallsField({
           vel: new THREE.Vector3(),
           scale: 0.4 + rnd() * 0.8,
           seed: rnd() * 1000,
-          variant: Math.floor(rnd() * textures.length),
-          tiltX: (rnd() - 0.5) * 0.25,
-          tiltY: (rnd() - 0.5) * 0.3
+          variant: Math.floor(rnd() * textures.length)
         })
         idx++
       }
@@ -185,6 +190,8 @@ export function BallsField({
   }, [count, bounds.x, bounds.y, bounds.z, yOffset, textures.length])
 
   const tmp = useMemo(() => new THREE.Vector3(), [])
+  const targetDir = useMemo(() => new THREE.Vector3(), [])
+  const targetQuat = useMemo(() => new THREE.Quaternion(), [])
 
   useFrame((state, delta) => {
     const dt = Math.min(delta, 1 / 30)
@@ -219,15 +226,44 @@ export function BallsField({
       b.pos.z += b.vel.z * dt * 60
 
       const m = meshesRef.current[i]
-      if (m) {
-        m.position.copy(b.pos)
-        // gentle wobble — keeps the face roughly toward camera
-        m.rotation.x = b.tiltX + Math.sin(time * 0.7 + b.seed) * 0.06
-        m.rotation.y = b.tiltY + Math.sin(time * 0.5 + b.seed * 1.4) * 0.08
-        m.rotation.z = Math.sin(time * 0.4 + b.seed * 0.7) * 0.04
-        const pulse = 1 + Math.sin(time * 1.4 + b.seed) * 0.02
-        m.scale.setScalar(b.scale * pulse)
-      }
+      if (!m) return
+
+      m.position.copy(b.pos)
+
+      // Parallax rotation — the face slides across the ball surface, drifting
+      // AWAY from the pointer. Falloff so distant balls stay pointed at the
+      // camera without spurious tilt.
+      const pdx = b.pos.x - p.x
+      const pdy = b.pos.y - p.y
+      const pd = Math.hypot(pdx, pdy)
+      const parallaxRange = 5.5
+      const parallaxFalloff = pd < parallaxRange ? 1 - pd / parallaxRange : 0
+      const parallaxStrength = 3.5 * parallaxFalloff
+      const nx = pd > 0.001 ? pdx / pd : 0
+      const ny = pd > 0.001 ? pdy / pd : 0
+
+      // subtle idle sway of the face
+      const swayX = Math.sin(time * 0.55 + b.seed) * 0.28
+      const swayY = Math.cos(time * 0.48 + b.seed * 1.3) * 0.24
+
+      // "target" the face looks at — camera position offset by parallax
+      const tx = nx * parallaxStrength + swayX
+      const ty = ny * parallaxStrength + swayY
+      const tz = CAMERA_Z
+
+      const vx = tx - b.pos.x
+      const vy = ty - b.pos.y
+      const vz = tz - b.pos.z
+      const vlen = Math.hypot(vx, vy, vz) || 1
+      targetDir.set(vx / vlen, vy / vlen, vz / vlen)
+
+      // Align mesh local +X (where the face is painted) with targetDir.
+      targetQuat.setFromUnitVectors(FACE_AXIS, targetDir)
+      // Smooth toward the target so the rotation feels gentle.
+      m.quaternion.slerp(targetQuat, 1 - Math.exp(-8 * dt))
+
+      const pulse = 1 + Math.sin(time * 1.4 + b.seed) * 0.02
+      m.scale.setScalar(b.scale * pulse)
     })
   })
 
