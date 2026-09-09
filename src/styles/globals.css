@@ -58,12 +58,16 @@ a { color: inherit; }
     linear-gradient(160deg, #cfc0ff 0%, #b5a4ff 45%, #8f78ff 100%);
 }
 
-/* main page — scrollable, gradient shows through the whole way */
+/* main page — scrollable, gradient shows through the whole way. Pointer
+   events pass through so R3F below can receive them; the checklist card
+   is a sibling with its own pointer-events. */
 .page {
   position: relative;
   z-index: 2;
   min-height: 100vh;
+  pointer-events: none;
 }
+.page * { pointer-events: none; }
 
 /* Hero — sits above the fixed canvas */
 .hero {
