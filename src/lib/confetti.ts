@@ -1,9 +1,11 @@
 import confetti from 'canvas-confetti'
 import { reducedMotion } from './motion'
+import { playSound } from './sounds'
 
 const PALETTE = ['#ffd94a', '#ff6ab8', '#7d63ff', '#a8dcff', '#ff9a5a', '#16121b']
 
 export function popConfetti(x?: number, y?: number) {
+  playSound('confetti')
   if (reducedMotion()) return
   const origin =
     x !== undefined && y !== undefined
@@ -21,6 +23,7 @@ export function popConfetti(x?: number, y?: number) {
 }
 
 export function celebrate() {
+  playSound('celebrate')
   if (reducedMotion()) return
   // One bounded burst per side; never emit hundreds of particles every frame.
   for (const side of [0, 1]) {

@@ -1,0 +1,37 @@
+import { chromium, expect } from '@playwright/test'
+const browser = await chromium.launch({ channel: 'chrome', headless: true })
+const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
+const errors = []
+page.on('pageerror', e => errors.push(e.message))
+await page.goto('http://127.0.0.1:5173/')
+await page.locator('canvas[aria-busy="false"]').waitFor()
+await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+await page.waitForTimeout(1000)
+const points = await page.evaluate(async () => {
+  const source = await (await fetch('/src/scene/Experience.tsx')).text()
+  const url = source.match(/from ["']([^"']*@react-three_fiber[^"']*)["']/)[1]
+  const fiber = await import(url)
+  window.sceneState = fiber._roots.get(document.querySelector('canvas')).store.getState()
+  const item = window.sceneState.scene.getObjectByName('notebook')
+  const p = item.getWorldPosition(item.position.clone()).project(window.sceneState.camera)
+  const ring = document.querySelector('.bag-target').getBoundingClientRect()
+  return { x: (p.x + 1) * innerWidth / 2, y: (1 - p.y) * innerHeight / 2, bx: ring.x + ring.width / 2, by: ring.y + ring.height / 2 }
+})
+await page.mouse.move(points.x, points.y)
+await page.waitForTimeout(1300)
+await expect(page.locator('body')).toHaveCSS('cursor', 'grab')
+await page.mouse.down()
+await page.mouse.move(points.bx, points.by, { steps: 20 })
+await page.mouse.up()
+await expect(page.locator('.clist__items li.is-done')).toHaveCount(1)
+await page.waitForTimeout(850)
+await expect.poll(() => page.evaluate(() => window.sceneState.scene.getObjectByName('notebook').visible)).toBe(false)
+await page.getByRole('button', { name: 'Mute sound effects' }).click()
+await expect(page.getByRole('button', { name: 'Mute sound effects' })).toHaveAttribute('aria-pressed', 'true')
+await page.reload()
+await expect(page.getByRole('button', { name: 'Mute sound effects' })).toHaveAttribute('aria-pressed', 'true')
+await expect(page.locator('.clist__items li.is-done')).toHaveCount(1)
+expect(errors).toEqual([])
+console.log('PASS: real drag, packing animation completes, sound mute persists, packed state persists, no browser errors')
+await browser.close()
+

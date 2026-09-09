@@ -16,6 +16,9 @@ import { popConfetti, celebrate } from "../lib/confetti";
 import { installPointerManager } from "../lib/pointer";
 import { TitleDeformation } from "../components/TitleDeformation";
 import { BagTarget } from "../components/BagTarget";
+import { SoundToggle } from "../components/SoundToggle";
+import { reducedMotion } from "../lib/motion";
+import { installSoundUnlock } from "../lib/sounds";
 
 export function App() {
   const packed = useChecklistStore((s) => s.packed);
@@ -25,7 +28,9 @@ export function App() {
     [packed],
   );
   const [showCompletion, setShowCompletion] = useState(false);
-  const celebratedRef = useRef(false);
+  const celebratedRef = useRef(totalDone === checklist.length);
+  const burstTimers = useRef(new Set<number>());
+  useEffect(() => () => burstTimers.current.forEach(window.clearTimeout), []);
   const heroRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
@@ -65,6 +70,7 @@ export function App() {
   useEffect(() => {
     return installPointerManager();
   }, []);
+  useEffect(() => installSoundUnlock(), []);
 
   const handleCollect = useCallback(
     (id: ItemKind, x: number, y: number) => {
@@ -77,7 +83,12 @@ export function App() {
         kind: "success",
         color: item?.color,
       });
-      popConfetti(x, y);
+      const timer = window.setTimeout(() => {
+        burstTimers.current.delete(timer);
+        const ring = document.querySelector('.bag-target')?.getBoundingClientRect();
+        popConfetti(ring ? ring.x + ring.width / 2 : x, ring ? ring.y + ring.height / 2 : y);
+      }, reducedMotion() ? 100 : 560);
+      burstTimers.current.add(timer);
     },
     [packed, toggle],
   );
@@ -85,7 +96,8 @@ export function App() {
   useEffect(() => {
     if (totalDone === checklist.length && !celebratedRef.current) {
       celebratedRef.current = true;
-      celebrate();
+      const timer = window.setTimeout(celebrate, reducedMotion() ? 160 : 740);
+      burstTimers.current.add(timer);
       pushToast({ text: "You're ready — see you in Paris!", kind: "win" });
       setShowCompletion(true);
       window.setTimeout(() => setShowCompletion(false), 4200);
@@ -107,6 +119,7 @@ export function App() {
       </div>
       <div className="grain" aria-hidden />
       <BagTarget />
+      <SoundToggle />
       <main className="page">
         <section className="hero" ref={heroRef}>
           <h1 className="title" ref={titleRef}>

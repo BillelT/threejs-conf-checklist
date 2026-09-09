@@ -49,8 +49,6 @@ export function Toasts() {
             radius={999}
             fill={KIND_FILL[kind]}
             perimeterPoints={40}
-            influenceRadius={130}
-            strength={0.6}
             spring={0.16}
             damping={0.76}
             contentParallax={3}

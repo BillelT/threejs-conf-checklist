@@ -18,10 +18,8 @@ export function ChecklistPanel() {
         radius={28}
         fill="#f2ebd5"
         perimeterPoints={48}
-        influenceRadius={190}
-        strength={0.6}
         spring={0.14}
-        damping={0.78}
+        damping={0.65}
         contentParallax={0}
         padding={0}
       >
@@ -31,8 +29,7 @@ export function ChecklistPanel() {
             radius={999}
             fill="#7d63ff"
             perimeterPoints={36}
-            influenceRadius={110}
-            strength={0.7}
+            influenceRadius={0}
             spring={0.18}
             damping={0.74}
             contentParallax={0}

@@ -18,6 +18,10 @@ export function PrintedLabel({ badge = false }: { badge?: boolean }) {
     ctx.textAlign = 'center'
     ctx.fillText('THREE', 256, badge ? 140 : 240)
     ctx.fillText('CONF', 256, badge ? 237 : 335)
+    if (!badge) {
+      ctx.fillStyle = '#f59bff'; ctx.beginPath(); ctx.arc(422, 408, 85, 0, Math.PI * 2); ctx.fill()
+      ctx.fillStyle = '#251331'; ctx.font = '900 66px Arial Black, sans-serif'; ctx.fillText('.JS', 421, 434)
+    }
     if (badge) {
       const gradient = ctx.createRadialGradient(210, 330, 10, 256, 420, 155)
       gradient.addColorStop(0, '#d3b9ff'); gradient.addColorStop(1, '#5133c7')
