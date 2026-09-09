@@ -87,6 +87,9 @@ a { color: inherit; }
   margin: 0;
   color: var(--cream);
   text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: auto;
+  user-select: text;
 }
 .title span { display: block; }
 
@@ -123,6 +126,7 @@ a { color: inherit; }
   width: min(280px, 84vw);
   color: var(--ink);
   filter: drop-shadow(0 30px 60px rgba(28, 12, 60, 0.45));
+  user-select: text;
 }
 .clist__card {
   position: relative;
