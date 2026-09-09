@@ -93,11 +93,6 @@ export function Bag({ position = [0, 0, 0], packedCount }: Props) {
         <sphereGeometry args={[0.02, 8, 8]} />
         <meshStandardMaterial color="#16121b" />
       </mesh>
-      {/* shadow disk */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.15, 0]}>
-        <circleGeometry args={[1.4, 32]} />
-        <meshBasicMaterial color="#16121b" transparent opacity={0.22} />
-      </mesh>
     </group>
   )
 }

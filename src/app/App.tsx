@@ -49,18 +49,23 @@ export function App() {
   return (
     <>
       <div className="bg-gradient" aria-hidden />
-      <div className="stage" aria-label="3D packing scene">
-        <Experience onCollect={handleCollect} />
-      </div>
       <div className="grain" aria-hidden />
+      <ChecklistPanel />
       <main className="page">
-        <section className="top">
+        <section className="hero">
           <h1 className="title">
             <span>Three.js</span>
             <span>Conf</span>
             <span>Checklist</span>
           </h1>
-          <ChecklistPanel />
+          <p className="hero__cue" aria-hidden>
+            Scroll ↓
+          </p>
+        </section>
+        <section className="game" aria-label="3D packing scene">
+          <div className="stage">
+            <Experience onCollect={handleCollect} />
+          </div>
         </section>
       </main>
       <Toasts />

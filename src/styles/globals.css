@@ -9,12 +9,10 @@
   --yellow: #ffd94a;
   --peach: #ff9a5a;
   --mint: #b6f0c8;
-  --paper: #fbf7ea;
+  --paper: #f2ebd5;
 
   --font-display: 'Syne', 'Arial Black', system-ui, sans-serif;
   --font-body: 'Bebas Neue', 'Impact', system-ui, sans-serif;
-
-  --shadow-soft: 0 20px 60px -20px rgba(24, 12, 60, 0.35);
 }
 
 * {
@@ -27,7 +25,7 @@ body {
   padding: 0;
   min-height: 100%;
   overflow-x: hidden;
-  background: var(--lavender);
+  background: transparent;
   color: var(--ink);
   font-family: var(--font-body);
   letter-spacing: 0.02em;
@@ -39,7 +37,6 @@ body {
   position: relative;
   min-height: 100vh;
   isolation: isolate;
-  overflow: hidden;
 }
 
 button {
@@ -47,9 +44,7 @@ button {
   cursor: pointer;
 }
 
-a {
-  color: inherit;
-}
+a { color: inherit; }
 
 /* full-viewport gradient background inspired by threejs.paris */
 .bg-gradient {
@@ -63,12 +58,56 @@ a {
     linear-gradient(160deg, #cfc0ff 0%, #b5a4ff 45%, #8f78ff 100%);
 }
 
-/* full-viewport 3D stage — sits above the gradient, DOM sits above the stage */
+/* main page — scrollable, gradient shows through the whole way */
+.page {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+}
+
+/* Hero */
+.hero {
+  min-height: 100vh;
+  padding: clamp(24px, 4vw, 48px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(72px, 14vw, 240px);
+  line-height: 0.84;
+  letter-spacing: -0.035em;
+  margin: 0;
+  color: var(--cream);
+  text-transform: uppercase;
+}
+.title span { display: block; }
+
+.hero__cue {
+  align-self: center;
+  font-family: var(--font-body);
+  color: var(--cream);
+  opacity: 0.7;
+  letter-spacing: 0.2em;
+  font-size: 18px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* Game — where the balls, bag and items live. Below the hero, full viewport. */
+.game {
+  position: relative;
+  height: 100vh;
+  min-height: 620px;
+}
 .stage {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: auto;
+  position: relative;
+  height: 100vh;
+  width: 100%;
 }
 .stage canvas {
   display: block;
@@ -76,178 +115,81 @@ a {
   height: 100%;
 }
 
-/* main page grid — sits on top of the fixed canvas, ignores pointer events
-   everywhere except on the UI islands that explicitly opt back in */
-.page {
-  position: relative;
-  z-index: 3;
-  min-height: 100vh;
-  padding: clamp(20px, 3vw, 40px);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto 1fr;
-  gap: clamp(16px, 2.4vw, 32px);
-  pointer-events: none;
-}
-.page > *,
-.page section > * {
-  pointer-events: none;
-}
-.checklist-card,
-.checklist-card *,
-.reset-btn {
-  pointer-events: auto;
-}
-
-.top {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-  align-items: start;
-  gap: clamp(16px, 3vw, 48px);
-}
-
-@media (max-width: 900px) {
-  .top {
-    grid-template-columns: 1fr;
-  }
-}
-
-.title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(64px, 13vw, 220px);
-  line-height: 0.86;
-  letter-spacing: -0.035em;
-  margin: 0;
-  color: var(--cream);
-  text-transform: uppercase;
-  text-shadow: 0 6px 26px rgba(60, 32, 140, 0.18);
-}
-
-.title span {
-  display: block;
-}
-
-/* Checklist card */
-.checklist-card {
+/* Checklist card — compact, floating top-right,
+   inspired by the threejs.paris pricing cards.
+   Read-only: items only tick when collected in the scene. */
+.clist {
+  position: fixed;
+  top: clamp(16px, 2.5vw, 28px);
+  right: clamp(16px, 2.5vw, 28px);
+  z-index: 20;
+  width: min(280px, 84vw);
   background: var(--paper);
-  border: 2px solid var(--ink);
-  border-radius: 22px;
-  padding: 20px 22px 22px;
-  box-shadow: 8px 8px 0 var(--ink);
-  position: relative;
-  overflow: hidden;
+  border-radius: 24px;
+  padding: 44px 22px 22px;
+  color: var(--ink);
+  box-shadow: 0 30px 60px -30px rgba(28, 12, 60, 0.45);
 }
-
-.checklist-card__title {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 14px;
+.clist__pill {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--lavender-deep);
+  color: var(--cream);
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
-
-.checklist-card__title h2 {
-  margin: 0;
+.clist__count {
+  text-align: center;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 26px;
+  font-size: 32px;
   letter-spacing: -0.01em;
-  text-transform: uppercase;
+  margin: 0 0 12px;
 }
-
-.progress {
-  font-family: var(--font-body);
-  font-size: 20px;
-  letter-spacing: 0.08em;
-  color: var(--ink);
-  opacity: 0.6;
-}
-
-.checklist {
+.clist__items {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
-
-.checklist li {
+.clist__items li {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
-  border-radius: 12px;
-  transition: background 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-family: var(--font-body);
-  font-size: 22px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.checklist li:hover {
-  background: rgba(107, 63, 255, 0.08);
-  transform: translateX(4px);
-}
-
-.check {
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  border: 2px solid var(--ink);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  transition: background 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  flex-shrink: 0;
-}
-
-.checklist li.done .check {
-  background: var(--yellow);
-  transform: rotate(-8deg) scale(1.05);
-}
-.checklist li.done .check::after {
-  content: '';
-  width: 10px;
-  height: 6px;
-  border-left: 3px solid var(--ink);
-  border-bottom: 3px solid var(--ink);
-  transform: rotate(-45deg) translate(1px, -1px);
-}
-.checklist li.done .label {
-  text-decoration: line-through;
-  text-decoration-thickness: 3px;
-  opacity: 0.4;
-}
-
-.reset-btn {
-  margin-top: 14px;
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 2px solid var(--ink);
-  background: var(--lavender);
+  align-items: baseline;
+  gap: 8px;
   font-family: var(--font-body);
   font-size: 18px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink);
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+  padding: 2px 0;
+  transition: opacity 0.2s ease;
 }
-.reset-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  background: var(--pink);
+.clist__bullet {
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1;
 }
-.reset-btn:active {
-  transform: translateY(0) scale(0.98);
+.clist__label { flex: 1; }
+.clist__items li.is-done .clist__label {
+  background: var(--yellow);
+  box-shadow: 3px 0 0 var(--yellow), -3px 0 0 var(--yellow);
+  padding: 0 1px;
 }
-
+.clist__items li.is-done .clist__bullet { color: var(--lavender-deep); }
 
 /* Toast */
 .toasts {
   position: fixed;
   top: 24px;
-  right: 24px;
+  left: 24px;
   z-index: 40;
   display: flex;
   flex-direction: column;
@@ -256,10 +198,9 @@ a {
 }
 .toast {
   background: var(--paper);
-  border: 2px solid var(--ink);
   border-radius: 999px;
   padding: 10px 18px;
-  box-shadow: 6px 6px 0 var(--ink);
+  box-shadow: 0 16px 40px -20px rgba(28, 12, 60, 0.5);
   font-family: var(--font-body);
   font-size: 20px;
   letter-spacing: 0.1em;
@@ -269,12 +210,11 @@ a {
   gap: 10px;
   animation: toast-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.toast.success {
-  background: var(--yellow);
-}
+.toast.success { background: var(--yellow); }
 .toast.win {
   background: var(--pink);
-  font-size: 26px;
+  color: var(--cream);
+  font-size: 24px;
 }
 .toast .dot {
   width: 14px;
@@ -288,7 +228,7 @@ a {
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-/* completion banner */
+/* Completion overlay */
 .completion {
   position: fixed;
   inset: 0;
@@ -311,14 +251,15 @@ a {
   margin: 0;
   line-height: 0.85;
   letter-spacing: -0.03em;
-  color: var(--ink);
+  color: var(--cream);
 }
 .completion p {
   font-family: var(--font-body);
   font-size: clamp(20px, 2vw, 30px);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.7;
+  color: var(--cream);
+  opacity: 0.85;
   margin: 20px 0 0;
 }
 @keyframes rise {
@@ -342,4 +283,14 @@ a {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+@media (max-width: 640px) {
+  .clist {
+    right: 12px;
+    top: 12px;
+    padding: 40px 16px 16px;
+    width: min(240px, 84vw);
+  }
+  .clist__items li { font-size: 16px; }
 }

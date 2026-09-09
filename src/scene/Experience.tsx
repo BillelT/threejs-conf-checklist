@@ -8,7 +8,7 @@ import { ItemsField } from './ItemsField'
 import { useChecklistStore } from '../hooks/useChecklistStore'
 import type { ItemKind } from '../data/checklist'
 
-const BAG_POS = new THREE.Vector3(-3.8, -0.4, -0.3)
+const BAG_POS = new THREE.Vector3(-3.6, 0, -0.3)
 
 function PointerTracker({ pointer }: { pointer: React.MutableRefObject<THREE.Vector3> }) {
   const { viewport } = useThree()

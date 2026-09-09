@@ -59,12 +59,12 @@ export function ItemsField({
     const rnd = seededRand(7)
     const list: Record<ItemKind, ItemState> = {} as any
     const spots: [number, number, number][] = [
-      [-3.2, -0.6, ITEM_Z],
-      [-1.5, -2.3, ITEM_Z],
-      [0.5, -1.1, ITEM_Z],
-      [2.3, -2.4, ITEM_Z],
-      [3.4, -0.7, ITEM_Z],
-      [1.5, -3.0, ITEM_Z]
+      [-1.6, 1.4, ITEM_Z],
+      [-0.2, -1.7, ITEM_Z],
+      [1.6, 1.1, ITEM_Z],
+      [2.9, -1.4, ITEM_Z],
+      [-2.6, -1.6, ITEM_Z],
+      [1.1, -2.2, ITEM_Z]
     ]
     checklist.forEach((it, i) => {
       const [x, y, z] = spots[i % spots.length]
