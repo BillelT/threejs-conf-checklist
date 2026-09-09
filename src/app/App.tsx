@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Experience } from '../scene/Experience'
 import { ChecklistPanel } from '../components/ChecklistPanel'
 import { Toasts, pushToast } from '../components/Toasts'
@@ -16,6 +16,35 @@ export function App() {
   )
   const [showCompletion, setShowCompletion] = useState(false)
   const celebratedRef = useRef(false)
+  const heroRef = useRef<HTMLElement>(null)
+  const titleRef = useRef<HTMLHeadingElement>(null)
+
+  useLayoutEffect(() => {
+    const hero = heroRef.current
+    const title = titleRef.current
+    if (!hero || !title) return
+
+    const fit = () => {
+      const heroStyle = getComputedStyle(hero)
+      const available =
+        hero.clientWidth - parseFloat(heroStyle.paddingLeft) - parseFloat(heroStyle.paddingRight)
+      if (available <= 0) return
+      title.querySelectorAll<HTMLSpanElement>('span').forEach((line) => {
+        line.style.fontSize = ''
+        const currentSize = parseFloat(getComputedStyle(line).fontSize)
+        const measured = line.getBoundingClientRect().width
+        if (measured > 0) {
+          line.style.fontSize = `${(currentSize * available) / measured}px`
+        }
+      })
+    }
+
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(hero)
+    document.fonts?.ready.then(fit).catch(() => {})
+    return () => ro.disconnect()
+  }, [])
 
   const handleCollect = useCallback(
     (id: ItemKind, x: number, y: number) => {
@@ -55,8 +84,8 @@ export function App() {
       <div className="grain" aria-hidden />
       <ChecklistPanel />
       <main className="page">
-        <section className="hero">
-          <h1 className="title">
+        <section className="hero" ref={heroRef}>
+          <h1 className="title" ref={titleRef}>
             <span>Three.js</span>
             <span>Conf</span>
             <span>Checklist</span>
