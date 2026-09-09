@@ -49,6 +49,9 @@ export function App() {
   return (
     <>
       <div className="bg-gradient" aria-hidden />
+      <div className="stage" aria-hidden>
+        <Experience onCollect={handleCollect} />
+      </div>
       <div className="grain" aria-hidden />
       <ChecklistPanel />
       <main className="page">
@@ -58,15 +61,8 @@ export function App() {
             <span>Conf</span>
             <span>Checklist</span>
           </h1>
-          <p className="hero__cue" aria-hidden>
-            Scroll ↓
-          </p>
         </section>
-        <section className="game" aria-label="3D packing scene">
-          <div className="stage">
-            <Experience onCollect={handleCollect} />
-          </div>
-        </section>
+        <section className="game" aria-label="3D packing area" />
       </main>
       <Toasts />
       <Completion visible={showCompletion} />

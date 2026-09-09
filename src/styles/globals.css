@@ -65,14 +65,13 @@ a { color: inherit; }
   min-height: 100vh;
 }
 
-/* Hero */
+/* Hero — sits above the fixed canvas */
 .hero {
   min-height: 100vh;
   padding: clamp(24px, 4vw, 48px);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 24px;
+  justify-content: flex-start;
 }
 
 .title {
@@ -87,27 +86,21 @@ a { color: inherit; }
 }
 .title span { display: block; }
 
-.hero__cue {
-  align-self: center;
-  font-family: var(--font-body);
-  color: var(--cream);
-  opacity: 0.7;
-  letter-spacing: 0.2em;
-  font-size: 18px;
-  text-transform: uppercase;
-  margin: 0;
-}
-
-/* Game — where the balls, bag and items live. Below the hero, full viewport. */
+/* Empty spacer that gives the page its second screen of scroll; the 3D
+   objects rise into this section as the user scrolls. */
 .game {
   position: relative;
-  height: 100vh;
-  min-height: 620px;
+  min-height: 100vh;
 }
+
+/* Canvas — full viewport, fixed, transparent. The 3D content itself
+   is positioned in world space so it only enters the frame once the
+   user scrolls past the hero. */
 .stage {
-  position: relative;
-  height: 100vh;
-  width: 100%;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;
 }
 .stage canvas {
   display: block;
