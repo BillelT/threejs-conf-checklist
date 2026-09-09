@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Text } from '@react-three/drei'
 
 export function Badge() {
@@ -23,35 +24,37 @@ export function Badge() {
         <boxGeometry args={[0.5, 0.03, 0.005]} />
         <meshStandardMaterial color="#ffd94a" />
       </mesh>
-      <Text
-        position={[0, 0.05, 0.028]}
-        fontSize={0.09}
-        color="#ffd94a"
-        anchorX="center"
-        anchorY="middle"
-        maxWidth={0.55}
-        textAlign="center"
-      >
-        THREE.JS
-      </Text>
-      <Text
-        position={[0, -0.08, 0.028]}
-        fontSize={0.07}
-        color="#f6f0dc"
-        anchorX="center"
-        anchorY="middle"
-      >
-        CONF 2026
-      </Text>
-      <Text
-        position={[0, -0.28, 0.028]}
-        fontSize={0.05}
-        color="#f6f0dc"
-        anchorX="center"
-        anchorY="middle"
-      >
-        VOLUNTEER
-      </Text>
+      <Suspense fallback={null}>
+        <Text
+          position={[0, 0.05, 0.028]}
+          fontSize={0.09}
+          color="#ffd94a"
+          anchorX="center"
+          anchorY="middle"
+          maxWidth={0.55}
+          textAlign="center"
+        >
+          THREE.JS
+        </Text>
+        <Text
+          position={[0, -0.08, 0.028]}
+          fontSize={0.07}
+          color="#f6f0dc"
+          anchorX="center"
+          anchorY="middle"
+        >
+          CONF 2026
+        </Text>
+        <Text
+          position={[0, -0.28, 0.028]}
+          fontSize={0.05}
+          color="#f6f0dc"
+          anchorX="center"
+          anchorY="middle"
+        >
+          VOLUNTEER
+        </Text>
+      </Suspense>
     </group>
   )
 }
