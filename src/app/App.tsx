@@ -6,6 +6,7 @@ import { Completion } from '../components/Completion'
 import { useChecklistStore } from '../hooks/useChecklistStore'
 import { checklist, type ItemKind } from '../data/checklist'
 import { popConfetti, celebrate } from '../lib/confetti'
+import { installPointerManager } from '../lib/pointer'
 
 export function App() {
   const packed = useChecklistStore((s) => s.packed)
@@ -44,6 +45,10 @@ export function App() {
     ro.observe(hero)
     document.fonts?.ready.then(fit).catch(() => {})
     return () => ro.disconnect()
+  }, [])
+
+  useEffect(() => {
+    installPointerManager()
   }, [])
 
   const handleCollect = useCallback(

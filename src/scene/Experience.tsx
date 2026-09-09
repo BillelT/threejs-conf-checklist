@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment } from '@react-three/drei'
 import * as THREE from 'three'
 import { Bag } from './Bag'
 import { BallsField } from './BallsField'
@@ -94,11 +93,12 @@ export function Experience({ onCollect }: Props) {
       gl={{ antialias: true, alpha: true }}
       style={{ background: 'transparent' }}
     >
-      <ambientLight intensity={0.55} />
-      <directionalLight position={[3, 6, 5]} intensity={1.2} castShadow />
-      <directionalLight position={[-4, -2, 3]} intensity={0.6} color="#ff9ac8" />
-      <directionalLight position={[4, 2, -3]} intensity={0.5} color="#a8dcff" />
-      <Environment preset="studio" />
+      <ambientLight intensity={0.45} />
+      <directionalLight position={[3, 6, 5]} intensity={1.35} castShadow />
+      <directionalLight position={[-4, -2, 3]} intensity={0.55} color="#ffbcda" />
+      <directionalLight position={[4, 2, -3]} intensity={0.55} color="#b8ddff" />
+      <hemisphereLight args={['#f6f0dc', '#6b3fff', 0.55]} />
+      <pointLight position={[0, 0, 6]} intensity={0.5} color="#ffffff" />
 
       <PointerTracker pointer={pointer} scroll={scroll} />
 
