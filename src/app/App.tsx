@@ -2,8 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Experience } from '../scene/Experience'
 import { ChecklistPanel } from '../components/ChecklistPanel'
 import { Toasts, pushToast } from '../components/Toasts'
-import { Watermark } from '../components/Watermark'
-import { Cursor } from '../components/Cursor'
 import { Completion } from '../components/Completion'
 import { useChecklistStore } from '../hooks/useChecklistStore'
 import { checklist, type ItemKind } from '../data/checklist'
@@ -50,36 +48,24 @@ export function App() {
 
   return (
     <>
-      <Watermark />
+      <div className="bg-gradient" aria-hidden />
       <div className="grain" aria-hidden />
       <main className="page">
         <section className="top">
-          <div>
-            <h1 className="title">
-              <span>Three.js</span>
-              <span>Conf</span>
-              <span>Checklist</span>
-            </h1>
-            <p className="subtitle">
-              Pack up before boarding. Sweep the balls, catch every item, drop it in your bag.
-            </p>
-            <div className="badge-row">
-              <span className="badge">Paris</span>
-              <span className="badge alt">10 / 11 sept 2026</span>
-              <span className="badge warm">Volunteer kit</span>
-            </div>
-            <p className="hint">Move your mouse across the balls — items are hiding behind them.</p>
-          </div>
+          <h1 className="title">
+            <span>Three.js</span>
+            <span>Conf</span>
+            <span>Checklist</span>
+          </h1>
           <ChecklistPanel />
         </section>
 
         <section className="stage" aria-label="3D packing scene">
           <Experience onCollect={handleCollect} />
           <div className="stage-overlay">
-            <span className="label-top">Bag ↖  ·  Items scattered ↘</span>
             <span className="label-bottom">
               {totalDone === 0
-                ? 'Start hunting'
+                ? ''
                 : totalDone === checklist.length
                 ? 'Bag packed. Bon voyage!'
                 : `${totalDone} / ${checklist.length} packed`}
@@ -89,7 +75,6 @@ export function App() {
       </main>
       <Toasts />
       <Completion visible={showCompletion} />
-      <Cursor />
     </>
   )
 }

@@ -35,10 +35,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-body {
-  cursor: none;
-}
-
 #root {
   position: relative;
   min-height: 100vh;
@@ -47,34 +43,23 @@ body {
 
 button {
   font-family: inherit;
-  cursor: none;
+  cursor: pointer;
 }
 
 a {
   color: inherit;
 }
 
-/* full-screen watermark repeat */
-.watermark {
+/* full-viewport gradient background inspired by threejs.paris */
+.bg-gradient {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  overflow: hidden;
-  color: rgba(255, 255, 255, 0.14);
-  mix-blend-mode: overlay;
-}
-
-.watermark-row {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(64px, 12vw, 180px);
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  line-height: 1;
-  display: flex;
-  gap: 2rem;
-  will-change: transform;
+  background:
+    radial-gradient(ellipse 90% 70% at 20% 15%, rgba(255, 255, 255, 0.45), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 80% 90%, rgba(125, 99, 255, 0.55), transparent 65%),
+    linear-gradient(160deg, #cfc0ff 0%, #b5a4ff 45%, #8f78ff 100%);
 }
 
 /* main page grid */
@@ -115,42 +100,6 @@ a {
 
 .title span {
   display: block;
-}
-
-.subtitle {
-  font-family: var(--font-body);
-  font-size: clamp(16px, 1.4vw, 22px);
-  letter-spacing: 0.06em;
-  color: var(--ink);
-  opacity: 0.7;
-  max-width: 34ch;
-  margin: 18px 0 0;
-  text-transform: uppercase;
-}
-
-.badge-row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-top: 14px;
-  font-family: var(--font-body);
-  font-size: 18px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.badge {
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: var(--ink);
-  color: var(--paper);
-}
-.badge.alt {
-  background: var(--pink);
-  color: var(--ink);
-}
-.badge.warm {
-  background: var(--yellow);
-  color: var(--ink);
 }
 
 /* Checklist card */
@@ -267,27 +216,14 @@ a {
   transform: translateY(0) scale(0.98);
 }
 
-/* hint / scene block */
-.hint {
-  font-family: var(--font-body);
-  font-size: clamp(14px, 1vw, 18px);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink);
-  opacity: 0.6;
-  margin: 10px 0 0;
-}
-
 /* Canvas layer */
 .stage {
   position: relative;
   height: min(72vh, 780px);
   min-height: 460px;
-  border-radius: 26px;
+  border-radius: 0;
   overflow: hidden;
-  border: 2px solid var(--ink);
-  background: linear-gradient(160deg, var(--sky) 0%, var(--lavender) 55%, var(--pink) 100%);
-  box-shadow: var(--shadow-soft);
+  background: transparent;
 }
 
 .stage canvas {
@@ -302,17 +238,9 @@ a {
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 20px 26px;
   color: var(--ink);
-}
-
-.stage-overlay .label-top {
-  font-family: var(--font-body);
-  font-size: 18px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.7;
 }
 
 .stage-overlay .label-bottom {
@@ -321,6 +249,7 @@ a {
   font-size: clamp(20px, 2vw, 30px);
   letter-spacing: -0.01em;
   text-transform: uppercase;
+  opacity: 0.75;
 }
 
 /* Toast */
@@ -404,32 +333,6 @@ a {
 @keyframes rise {
   0% { transform: translateY(60px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
-}
-
-/* Custom cursor */
-.cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--ink);
-  mix-blend-mode: difference;
-  pointer-events: none;
-  z-index: 100;
-  transform: translate(-50%, -50%);
-  transition: width 0.2s ease, height 0.2s ease, background 0.2s;
-}
-.cursor.grow {
-  width: 60px;
-  height: 60px;
-  background: var(--pink);
-}
-@media (pointer: coarse) {
-  body { cursor: auto; }
-  button, a { cursor: pointer; }
-  .cursor { display: none; }
 }
 
 /* subtle grain */

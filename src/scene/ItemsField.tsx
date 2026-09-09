@@ -154,10 +154,11 @@ export function ItemsField({
             onPointerOver={(e) => {
               e.stopPropagation()
               items[it.id].hovered = true
-              document.body.style.setProperty('cursor', 'none')
+              if (!packed[it.id]) document.body.style.cursor = 'pointer'
             }}
             onPointerOut={() => {
               items[it.id].hovered = false
+              document.body.style.cursor = ''
             }}
             onClick={(e) => {
               e.stopPropagation()
